@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { IListing } from "types/listing";
+import { Images } from "./Images";
 
 export const Listing = () => { 
   const { lid } = useParams<{ lid: string }>();
@@ -19,6 +20,7 @@ export const Listing = () => {
   return ( 
     <>
       <h1>{listing.streetNumber} {listing.streetName} {listing.city}, {listing.state} {listing.zipCode}</h1>
+      <Images lid={parseInt(lid ?? "")} />
       <h3>${listing.price.toLocaleString("en-US")}</h3>
       <h3>{listing.bedCount} beds, {listing.bathCount} baths</h3>
       <h3>{listing.squareFootage.toLocaleString("en-US")} sq ft</h3>
