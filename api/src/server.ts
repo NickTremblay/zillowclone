@@ -1,10 +1,12 @@
 import express, { Application, Request, Response } from "express";
+import cors from "cors";
 import { db } from "./db";
 
 const app: Application = express();
 const PORT = process.env.PORT || 5555;
 
 app.use(express.json());
+app.use(cors());
 
 export const getListings = async (req: Request, res: Response): Promise<void> => {
   try {
