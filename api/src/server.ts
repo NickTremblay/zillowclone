@@ -110,10 +110,30 @@ export const getOffers = async (req: Request, res: Response): Promise<void> => {
   }
 }
 
+export const getAmenities = async (req: Request, res: Response): Promise<void> => {
+  const lid = req.params.lid;
+
+  try {
+    const query = `
+      SELECT 
+        description
+      FROM amenities
+      WHERE lid = ${lid}
+    `;
+
+    const [rows] = await db.query(query);
+    res.json(rows);
+  } catch (error) {
+    console.error("Error fetching amenities:", error);
+    res.status(500).json({ error: "Failed to fetch amenities" });
+  }
+}
+
 app.get("/api/listings", getListings);
 app.get("/api/listing/:lid", getListing);
 app.get("/api/images/:lid", getImages);
 app.get("/api/offers/:lid", getOffers);
+app.get("/api/amenities/:lid", getAmenities);
 
 app.listen(PORT, () => {
   console.log(`Server is running at http://localhost:${PORT}`);
