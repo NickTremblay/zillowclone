@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { IListing } from "types/listing";
 import { Images } from "./Images";
+import { Offers } from "./Offers";
 
 export const Listing = () => { 
   const { lid } = useParams<{ lid: string }>();
@@ -31,6 +32,7 @@ export const Listing = () => {
         day: "numeric",     // e.g., "1"
         })}
       </h3>
+      <Offers lid={parseInt(lid ?? "")} />
     </>
   )
 }

@@ -90,9 +90,30 @@ export const getImages = async (req: Request, res: Response): Promise<void> => {
   }
 }
 
+export const getOffers = async (req: Request, res: Response): Promise<void> => {
+  const lid = req.params.lid;
+
+  try {
+    const query = `
+      SELECT 
+        oid, amount, dateOffered
+      FROM offer
+      WHERE lid = ${lid}
+      ORDER BY amount DESC
+    `;
+
+    const [rows] = await db.query(query);
+    res.json(rows);
+  } catch (error) {
+    console.error("Error fetching offers:", error);
+    res.status(500).json({ error: "Failed to fetch offers" });
+  }
+}
+
 app.get("/api/listings", getListings);
 app.get("/api/listing/:lid", getListing);
 app.get("/api/images/:lid", getImages);
+app.get("/api/offers/:lid", getOffers);
 
 app.listen(PORT, () => {
   console.log(`Server is running at http://localhost:${PORT}`);
