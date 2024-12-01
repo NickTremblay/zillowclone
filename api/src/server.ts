@@ -38,7 +38,41 @@ export const getListings = async (req: Request, res: Response): Promise<void> =>
   }
 };
 
+export const getListing = async (req: Request, res: Response): Promise<void> => {
+  const lid = req.params.lid;
+
+  try {
+    const query = `
+      SELECT 
+        l.lid, 
+        l.bid, 
+        l.uid, 
+        l.dateListed, 
+        l.price, 
+        l.bedCount, 
+        l.bathCount, 
+        l.squareFootage, 
+        l.listingType, 
+        b.streetNumber, 
+        b.streetName, 
+        b.city, 
+        b.state, 
+        b.zipCode 
+      FROM listing l
+      JOIN building b ON l.bid = b.bid
+      WHERE l.lid = ${lid}
+    `;
+
+    const [rows] = await db.query(query);
+    res.json(rows); // Send the combined results as JSON
+  } catch (error) {
+    console.error("Error fetching listing:", error);
+    res.status(500).json({ error: "Failed to fetch listing" });
+  }
+};
+
 app.get("/api/listings", getListings);
+app.get("/api/listing/:lid", getListing);
 
 app.listen(PORT, () => {
   console.log(`Server is running at http://localhost:${PORT}`);
