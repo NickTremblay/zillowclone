@@ -25,7 +25,6 @@ export const UpdateListingDialog = ({
     bedCount: "",
     bathCount: "",
     squareFootage: "",
-    listingType: "",
   });
 
   // Update state with listing data when dialog opens
@@ -41,8 +40,7 @@ export const UpdateListingDialog = ({
         price: listing.price.toString(),
         bedCount: listing.bedCount.toString(),
         bathCount: listing.bathCount.toString(),
-        squareFootage: listing.squareFootage.toString(),
-        listingType: listing.listingType.toString(),
+        squareFootage: listing.squareFootage.toString()
       });
     }
   }, [listing]);
@@ -137,17 +135,6 @@ export const UpdateListingDialog = ({
           />
           <TextField
             margin="dense"
-            label="Appraised Value"
-            name="appraisedValue"
-            value={formValues.appraisedValue}
-            onChange={handleChange}
-            type="number"
-            fullWidth
-            variant="standard"
-            required
-          />
-          <TextField
-            margin="dense"
             label="Price"
             name="price"
             value={formValues.price}
@@ -186,16 +173,6 @@ export const UpdateListingDialog = ({
             value={formValues.squareFootage}
             onChange={handleChange}
             type="number"
-            fullWidth
-            variant="standard"
-            required
-          />
-          <TextField
-            margin="dense"
-            label="Listing Type"
-            name="listingType"
-            value={formValues.listingType}
-            onChange={handleChange}
             fullWidth
             variant="standard"
             required

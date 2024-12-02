@@ -77,16 +77,45 @@ export const ListingDialog = ({
             <DialogContentText>
                 To create a listing, please enter all of following required information.
             </DialogContentText>
+              <TextField
+              margin="dense"
+              label="Street Number"
+              name="streetNumber"
+              fullWidth
+              variant="standard"
+              required
+            />
             <TextField
-                autoFocus
-                required
-                margin="dense"
-                id="address"
-                name="address"
-                label="Address"
-                type="address"
-                fullWidth
-                variant="standard"
+              margin="dense"
+              label="Street Name"
+              name="streetName"
+              fullWidth
+              variant="standard"
+              required
+            />
+            <TextField
+              margin="dense"
+              label="City"
+              name="city"
+              fullWidth
+              variant="standard"
+              required
+            />
+            <TextField
+              margin="dense"
+              label="Zip Code"
+              name="zipCode"
+              fullWidth
+              variant="standard"
+              required
+            />
+            <TextField
+              margin="dense"
+              label="State"
+              name="state"
+              fullWidth
+              variant="standard"
+              required
             />
             <TextField
                 autoFocus
