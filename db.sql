@@ -14,7 +14,7 @@ DROP TABLE IF EXISTS listing;
 SET FOREIGN_KEY_CHECKS = 1;
 
 CREATE TABLE listing (
-  lid INT NOT NULL,
+  lid INT AUTO_INCREMENT NOT NULL,
   bid INT NOT NULL,
   uid INT NOT NULL,
   dateListed DATETIME NOT NULL,
@@ -37,7 +37,7 @@ CREATE TABLE image (
 );
 
 CREATE TABLE offer (
-  oid INT NOT NULL,
+  oid INT AUTO_INCREMENT NOT NULL,
   amount INT NOT NULL,
   dateOffered DATETIME NOT NULL,
   lid INT NOT NULL,
@@ -46,7 +46,7 @@ CREATE TABLE offer (
 );
 
 CREATE TABLE building (
-  bid INT NOT NULL,
+  bid INT AUTO_INCREMENT NOT NULL,
   streetNumber INT NOT NULL,
   streetName VARCHAR(100) NOT NULL,
   city VARCHAR(50) NOT NULL,
@@ -66,7 +66,7 @@ CREATE TABLE amenities (
 );
 
 CREATE TABLE user (
-  uid INT NOT NULL,
+  uid INT AUTO_INCREMENT NOT NULL,
   email VARCHAR(255) NOT NULL,
   firstName VARCHAR(50) NOT NULL,
   lastName VARCHAR(50) NOT NULL,
