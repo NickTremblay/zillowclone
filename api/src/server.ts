@@ -129,11 +129,105 @@ export const getAmenities = async (req: Request, res: Response): Promise<void> =
   }
 }
 
+export const createListing = async (req: Request, res: Response): Promise<void> => {
+  const {
+    streetNumber,
+    streetName,
+    city,
+    zipCode,
+    state,
+    appraisedValue,
+    uid,
+    dateListed,
+    price,
+    bedCount,
+    bathCount,
+    squareFootage,
+    listingType,
+  } = req.body;
+
+  // Validate input
+  if (
+    !streetNumber ||
+    !streetName ||
+    !city ||
+    !zipCode ||
+    !state ||
+    !appraisedValue ||
+    !uid ||
+    !dateListed ||
+    !price ||
+    !bedCount ||
+    !bathCount ||
+    !squareFootage ||
+    !listingType
+  ) {
+    res.status(400).json({ error: "All fields are required." });
+    return;
+  }
+
+  const connection = await db.getConnection(); // Use connection for transaction handling
+
+  try {
+    // Start a transaction
+    await connection.beginTransaction();
+
+    // Insert into building table
+    const buildingQuery = `
+      INSERT INTO building (streetNumber, streetName, city, zipCode, state, appraisedValue)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `;
+    const [buildingResult] = await connection.query(buildingQuery, [
+      streetNumber,
+      streetName,
+      city,
+      zipCode,
+      state,
+      appraisedValue,
+    ]);
+
+    const bid = (buildingResult as any).insertId; // Get the inserted building ID
+
+    // Insert into listing table
+    const listingQuery = `
+      INSERT INTO listing (bid, uid, dateListed, price, bedCount, bathCount, squareFootage, listingType)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+    const [listingResult] = await connection.query(listingQuery, [
+      bid,
+      uid,
+      dateListed,
+      price,
+      bedCount,
+      bathCount,
+      squareFootage,
+      listingType,
+    ]);
+
+    // Commit the transaction
+    await connection.commit();
+
+    res.status(201).json({
+      message: "Listing and building created successfully.",
+      listingId: (listingResult as any).insertId,
+    });
+  } catch (error) {
+    // Rollback transaction on error
+    await connection.rollback();
+    console.error("Error creating a new listing and building:", error);
+    res.status(500).json({ error: "Failed to create listing and building." });
+  } finally {
+    // Release the connection
+    connection.release();
+  }
+};
+
 app.get("/api/listings", getListings);
 app.get("/api/listing/:lid", getListing);
 app.get("/api/images/:lid", getImages);
 app.get("/api/offers/:lid", getOffers);
 app.get("/api/amenities/:lid", getAmenities);
+app.post("/api/listing", createListing);
 
 app.listen(PORT, () => {
   console.log(`Server is running at http://localhost:${PORT}`);
