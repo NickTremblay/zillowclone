@@ -1,7 +1,16 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { Paper, Typography, Button, List, ListItem, ListItemText } from "@mui/material";
-import Grid from "@mui/material/Grid2"
+import {
+  Paper,
+  Typography,
+  Button,
+  List,
+  ListItem,
+  ListItemText,
+  IconButton,
+} from "@mui/material";
+import Grid from "@mui/material/Grid2";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { OfferDialog } from "./OfferDialog";
 
 interface IProps {
@@ -30,6 +39,10 @@ export const Offers = ({ lid }: IProps) => {
   };
 
   useEffect(() => {
+    fetchOffers();
+  }, [lid]);
+
+  const fetchOffers = () => {
     axios
       .get(`http://localhost:5555/api/offers/${lid}`)
       .then((response) => {
@@ -44,14 +57,17 @@ export const Offers = ({ lid }: IProps) => {
         }
       })
       .catch((error) => console.error("Error fetching offers:", error));
-  }, [lid]);
+  };
 
-  if (offers.length === 0)
-    return (
-      <Typography variant="h6" color="error">
-        Unable to get offers
-      </Typography>
-    );
+  const handleDeleteOffer = (oid: number) => {
+    axios
+      .delete(`http://localhost:5555/api/offers/${oid}`)
+      .then(() => {
+        console.log(`Offer with ID ${oid} deleted.`);
+        fetchOffers(); // Refresh the list of offers
+      })
+      .catch((error) => console.error(`Error deleting offer with ID ${oid}:`, error));
+  };
 
   return (
     <Paper elevation={3} sx={{ padding: 2 }}>
@@ -61,30 +77,48 @@ export const Offers = ({ lid }: IProps) => {
           Make an Offer
         </Button>
         <OfferDialog
-        open={dialogOpen}
-        onClose={() => setDialogOpen(false)}
-        offer={selectedOffer}
-        onSave={handleSaveOffer}
+          open={dialogOpen}
+          onClose={() => setDialogOpen(false)}
+          offer={selectedOffer}
+          onSave={handleSaveOffer}
         />
       </Grid>
-      <List>
-        {offers.map((offer) => (
-          <ListItem key={offer.oid} divider>
-            <ListItemText
-              primary={`$${offer.amount.toLocaleString("en-US")}`}
-              secondary={new Date(offer.dateOffered).toLocaleString("en-US", {
-                weekday: "long",
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-                hour: "numeric",
-                minute: "numeric",
-                hour12: true,
-              })}
-            />
-          </ListItem>
-        ))}
-      </List>
+      {offers.length === 0 ? (
+        <Typography variant="body1" color="textSecondary">
+          No current offers.
+        </Typography>
+      ) : (
+        <List>
+          {offers.map((offer) => (
+            <ListItem
+              key={offer.oid}
+              divider
+              secondaryAction={
+                <IconButton
+                  edge="end"
+                  color="error"
+                  onClick={() => handleDeleteOffer(offer.oid)}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              }
+            >
+              <ListItemText
+                primary={`$${offer.amount.toLocaleString("en-US")}`}
+                secondary={new Date(offer.dateOffered).toLocaleString("en-US", {
+                  weekday: "long",
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                  hour: "numeric",
+                  minute: "numeric",
+                  hour12: true,
+                })}
+              />
+            </ListItem>
+          ))}
+        </List>
+      )}
     </Paper>
   );
 };
