@@ -11,7 +11,7 @@ export const ListingDialog = ({
     handleClose: () => void;
   }) => {
 
-    const [checked, setChecked] = React.useState([""]);
+    const [checked, setChecked] = React.useState([] as string[]);
     
     return (
       <Dialog
@@ -56,6 +56,7 @@ export const ListingDialog = ({
                 bedCount,
                 bathCount,
                 squareFootage,
+                amenities,
                 listingType
             };
 

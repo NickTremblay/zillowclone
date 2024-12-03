@@ -143,6 +143,7 @@ export const createListing = async (req: Request, res: Response): Promise<void> 
     bathCount,
     squareFootage,
     listingType,
+    amenities, // Expect an array of amenities
   } = req.body;
 
   // Validate input
@@ -157,9 +158,10 @@ export const createListing = async (req: Request, res: Response): Promise<void> 
     !bedCount ||
     !bathCount ||
     !squareFootage ||
-    !listingType
+    !listingType ||
+    !Array.isArray(amenities) // Ensure amenities is an array
   ) {
-    res.status(400).json({ error: "All fields are required." });
+    res.status(400).json({ error: "All fields, including amenities, are required." });
     return;
   }
 
@@ -199,18 +201,32 @@ export const createListing = async (req: Request, res: Response): Promise<void> 
       listingType,
     ]);
 
+    const lid = (listingResult as any).insertId; // Get the inserted listing ID
+
+    // Insert into amenities table
+    if (amenities.length > 0) {
+      const amenitiesQuery = `
+        INSERT INTO amenities (lid, description)
+        VALUES (?, ?)
+      `;
+
+      for (const description of amenities) {
+        await connection.query(amenitiesQuery, [lid, description]);
+      }
+    }
+
     // Commit the transaction
     await connection.commit();
 
     res.status(201).json({
-      message: "Listing and building created successfully.",
-      listingId: (listingResult as any).insertId,
+      message: "Listing, building, and amenities created successfully.",
+      listingId: lid,
     });
   } catch (error) {
     // Rollback transaction on error
     await connection.rollback();
-    console.error("Error creating a new listing and building:", error);
-    res.status(500).json({ error: "Failed to create listing and building." });
+    console.error("Error creating a new listing, building, and amenities:", error);
+    res.status(500).json({ error: "Failed to create listing, building, and amenities." });
   } finally {
     // Release the connection
     connection.release();
