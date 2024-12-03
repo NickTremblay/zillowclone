@@ -34,8 +34,15 @@ export const Offers = ({ lid }: IProps) => {
   };
 
   const handleSaveOffer = (offer: any) => {
-    console.log("Offer saved:", offer);
-    setDialogOpen(false);
+    axios
+    .post("http://localhost:5555/api/offer", offer)
+    .then((response) => {
+      fetchOffers();
+      setDialogOpen(false);
+    })
+    .catch((error) => {
+      console.error("Error creating offer:", error.response?.data || error.message);
+    });
   };
 
   useEffect(() => {

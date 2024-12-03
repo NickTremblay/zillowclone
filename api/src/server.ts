@@ -190,7 +190,7 @@ export const createListing = async (req: Request, res: Response): Promise<void> 
     // Insert into listing table
     const listingQuery = `
       INSERT INTO listing (bid, uid, dateListed, price, bedCount, bathCount, squareFootage, listingType)
-      VALUES (?, 1, (SELECT NOW()), ?, ?, ?, ?, ?)
+      VALUES (?, 1, NOW(), ?, ?, ?, ?, ?)
     `;
     const [listingResult] = await connection.query(listingQuery, [
       bid,
@@ -268,13 +268,68 @@ export const deleteListing = async (req: Request, res: Response): Promise<void> 
   }
 };
 
+export const createOffer = async (req: Request, res: Response): Promise<void> => {
+  const { lid, amount } = req.body;
+
+  if (!lid || !amount) {
+    res.status(400).json({ error: "Listing ID (lid) and amount are required." });
+    return;
+  }
+
+  try {
+    const query = `
+      INSERT INTO offer (lid, amount, dateOffered)
+      VALUES (?, ?, NOW())
+    `;
+    const [result] = await db.query(query, [lid, amount]);
+
+    res.status(201).json({
+      message: "Offer created successfully.",
+      offerId: (result as any).insertId, // Include the new offer's ID in the response
+    });
+  } catch (error) {
+    console.error("Error creating offer:", error);
+    res.status(500).json({ error: "Failed to create offer." });
+  }
+};
+
+export const deleteOffer = async (req: Request, res: Response): Promise<void> => {
+  const oid = req.params.oid;
+
+  if (!oid) {
+    res.status(400).json({ error: "Offer ID (oid) is required." });
+    return;
+  }
+
+  try {
+    const query = `
+      DELETE FROM offer
+      WHERE oid = ?
+    `;
+
+    const [result] = await db.query(query, [oid]);
+
+    if ((result as any).affectedRows === 0) {
+      res.status(404).json({ error: "Offer not found." });
+      return;
+    }
+
+    res.status(200).json({ message: "Offer deleted successfully." });
+  } catch (error) {
+    console.error("Error deleting offer:", error);
+    res.status(500).json({ error: "Failed to delete offer." });
+  }
+};
+
 app.get("/api/listings", getListings);
 app.get("/api/listing/:lid", getListing);
 app.get("/api/images/:lid", getImages);
 app.get("/api/offers/:lid", getOffers);
 app.get("/api/amenities/:lid", getAmenities);
 app.post("/api/listing", createListing);
+app.post("/api/offer", createOffer);
 app.delete("/api/listing/:lid", deleteListing);
+app.delete("/api/offers/:oid", deleteOffer);
 
 app.listen(PORT, () => {
   console.log(`Server is running at http://localhost:${PORT}`);

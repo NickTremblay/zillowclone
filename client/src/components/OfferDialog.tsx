@@ -1,34 +1,33 @@
 import React from "react";
 import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button } from "@mui/material";
 import Grid from "@mui/material/Grid2"
+import { useParams } from "react-router-dom";
 
 interface IOfferDialogProps {
   open: boolean;
   onClose: () => void;
   offer?: {
-    oid: number;
+    lid: number;
     amount: number;
-    dateOffered: string;
   };
-  onSave: (offer: { oid: number; amount: number; dateOffered: string }) => void;
+  onSave: (offer: { lid: number; amount: number; }) => void;
 }
 
 export const OfferDialog: React.FC<IOfferDialogProps> = ({ open, onClose, offer, onSave }) => {
+  const { lid } = useParams<{ lid: string }>();
   const [formState, setFormState] = React.useState({
-    oid: offer?.oid || 0,
+    lid: parseInt(lid ?? "1"),
     amount: offer?.amount || 0,
-    dateOffered: offer?.dateOffered || "",
   });
 
   React.useEffect(() => {
     if (offer) {
       setFormState({
-        oid: offer.oid,
+        lid: parseInt(lid ?? "1"),
         amount: offer.amount,
-        dateOffered: offer.dateOffered,
       });
     }
-  }, [offer]);
+  }, [offer, lid]);
 
   const handleInputChange = (field: keyof typeof formState, value: string | number) => {
     setFormState((prev) => ({
