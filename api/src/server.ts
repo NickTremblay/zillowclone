@@ -1,6 +1,7 @@
 import express, { Application, Request, Response } from "express";
 import cors from "cors";
 import { db } from "./db";
+import { RowDataPacket } from "mysql2/promise";
 
 const app: Application = express();
 const PORT = process.env.PORT || 5555;
@@ -216,12 +217,48 @@ export const createListing = async (req: Request, res: Response): Promise<void> 
   }
 };
 
+export const deleteListing = async (req: Request, res: Response): Promise<void> => {
+  const lid = req.params.lid;
+
+  try {
+    // Fetch the building ID (`bid`) associated with the listing
+    const fetchBuildingQuery = `
+      SELECT bid
+      FROM listing
+      WHERE lid = ?
+    `;
+
+    const [buildingResult] = await db.query<RowDataPacket[]>(fetchBuildingQuery, [lid]);
+
+    if (buildingResult.length === 0) {
+      res.status(404).json({ error: "Listing not found." });
+      return;
+    }
+
+    const bid = buildingResult[0].bid;
+
+    // Delete the building (cascading deletes will handle associated listings)
+    const deleteBuildingQuery = `
+      DELETE FROM building
+      WHERE bid = ?
+    `;
+
+    await db.query(deleteBuildingQuery, [bid]);
+
+    res.status(200).json({ message: "Listing and associated building deleted successfully." });
+  } catch (error) {
+    console.error("Error deleting listing and associated building:", error);
+    res.status(500).json({ error: "Failed to delete listing and associated building." });
+  }
+};
+
 app.get("/api/listings", getListings);
 app.get("/api/listing/:lid", getListing);
 app.get("/api/images/:lid", getImages);
 app.get("/api/offers/:lid", getOffers);
 app.get("/api/amenities/:lid", getAmenities);
 app.post("/api/listing", createListing);
+app.delete("/api/listing/:lid", deleteListing);
 
 app.listen(PORT, () => {
   console.log(`Server is running at http://localhost:${PORT}`);
