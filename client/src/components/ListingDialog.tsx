@@ -33,12 +33,13 @@ export const ListingDialog = ({
             const zipCode = formJson.zipCode as string;
             const state = formJson.state as string;
             const appraisedValue = parseFloat(formJson.price as string);
-            const uid = formJson.uid as string; // Assuming `uid` is provided in the form
+            const uid = null;
             const dateListed = formJson.dateListed as string; // Assuming `dateListed` is a valid date string
+            const price = parseFloat(formJson.price as string);
             const bedCount = parseInt(formJson.bedCount as string, 10);
             const bathCount = parseInt(formJson.bathCount as string, 10);
             const squareFootage = parseInt(formJson.sqft as string, 10);
-            const listingType = formJson.listingType as string; // Assuming this is a dropdown or input field
+            const listingType = 1;
             const amenities = checked; // Assuming `checked` is an array of amenities from another state
 
             // Prepare the payload
@@ -51,11 +52,11 @@ export const ListingDialog = ({
                 appraisedValue,
                 uid,
                 dateListed,
+                price,
                 bedCount,
                 bathCount,
                 squareFootage,
-                listingType,
-                amenities, // Include amenities if needed for the listing
+                listingType
             };
 
             // Send POST request
