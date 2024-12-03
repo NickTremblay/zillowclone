@@ -17,6 +17,11 @@ export const Listings = () => {
     
   const handleCloseCL = () => {
     setOpenCL(false);
+    // Update listings in case listing was created
+    axios
+      .get("http://localhost:5555/api/listings")
+      .then((response) => setListings(response.data))
+      .catch((error) => console.error("Error fetching data:", error));
   };
 
   useEffect(() => {
