@@ -137,8 +137,6 @@ export const createListing = async (req: Request, res: Response): Promise<void> 
     zipCode,
     state,
     appraisedValue,
-    uid,
-    dateListed,
     price,
     bedCount,
     bathCount,
@@ -154,8 +152,6 @@ export const createListing = async (req: Request, res: Response): Promise<void> 
     !zipCode ||
     !state ||
     !appraisedValue ||
-    !uid ||
-    !dateListed ||
     !price ||
     !bedCount ||
     !bathCount ||
@@ -191,12 +187,10 @@ export const createListing = async (req: Request, res: Response): Promise<void> 
     // Insert into listing table
     const listingQuery = `
       INSERT INTO listing (bid, uid, dateListed, price, bedCount, bathCount, squareFootage, listingType)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, 1, (SELECT NOW()), ?, ?, ?, ?, ?)
     `;
     const [listingResult] = await connection.query(listingQuery, [
       bid,
-      uid,
-      dateListed,
       price,
       bedCount,
       bathCount,
