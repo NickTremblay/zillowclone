@@ -321,6 +321,105 @@ export const deleteOffer = async (req: Request, res: Response): Promise<void> =>
   }
 };
 
+export const updateListing = async (req: Request, res: Response): Promise<void> => {
+  const { lid } = req.params;
+  const {
+    streetNumber,
+    streetName,
+    city,
+    zipCode,
+    state,
+    appraisedValue,
+    price,
+    bedCount,
+    bathCount,
+    squareFootage,
+  } = req.body;
+
+  if (
+    !lid ||
+    !streetNumber ||
+    !streetName ||
+    !city ||
+    !zipCode ||
+    !state ||
+    !appraisedValue ||
+    !price ||
+    !bedCount ||
+    !bathCount ||
+    !squareFootage
+  ) {
+    res.status(400).json({ error: "All fields are required to update the listing." });
+    return;
+  }
+
+  try {
+    // Begin a transaction
+    const connection = await db.getConnection();
+    await connection.beginTransaction();
+
+    // Update `building` table
+    const updateBuildingQuery = `
+      UPDATE building
+      SET 
+        streetNumber = ?, 
+        streetName = ?, 
+        city = ?, 
+        zipCode = ?, 
+        state = ?, 
+        appraisedValue = ?
+      WHERE bid = (SELECT bid FROM listing WHERE lid = ?)
+    `;
+
+    const [buildingResult] = await connection.query(updateBuildingQuery, [
+      streetNumber,
+      streetName,
+      city,
+      zipCode,
+      state,
+      appraisedValue,
+      lid,
+    ]);
+
+    // Update `listing` table
+    const updateListingQuery = `
+      UPDATE listing
+      SET 
+        price = ?, 
+        bedCount = ?, 
+        bathCount = ?, 
+        squareFootage = ?
+      WHERE lid = ?
+    `;
+
+    const [listingResult] = await connection.query(updateListingQuery, [
+      price,
+      bedCount,
+      bathCount,
+      squareFootage,
+      lid,
+    ]);
+
+    // Check if either update affected rows
+    if (
+      (buildingResult as any).affectedRows === 0 &&
+      (listingResult as any).affectedRows === 0
+    ) {
+      await connection.rollback();
+      res.status(404).json({ error: "Listing not found or no changes were made." });
+      return;
+    }
+
+    // Commit the transaction
+    await connection.commit();
+
+    res.status(200).json({ message: "Listing updated successfully." });
+  } catch (error) {
+    console.error("Error updating listing:", error);
+    res.status(500).json({ error: "Failed to update listing." });
+  }
+};
+
 app.get("/api/listings", getListings);
 app.get("/api/listing/:lid", getListing);
 app.get("/api/images/:lid", getImages);
@@ -330,6 +429,7 @@ app.post("/api/listing", createListing);
 app.post("/api/offer", createOffer);
 app.delete("/api/listing/:lid", deleteListing);
 app.delete("/api/offers/:oid", deleteOffer);
+app.put("/api/listing/:lid", updateListing);
 
 app.listen(PORT, () => {
   console.log(`Server is running at http://localhost:${PORT}`);

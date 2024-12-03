@@ -57,7 +57,7 @@ export const UpdateListingDialog = ({
       const payload = {
         ...formValues,
         appraisedValue: parseFloat(formValues.appraisedValue),
-        price: parseFloat(formValues.price),
+        price: parseInt(formValues.price),
         bedCount: parseInt(formValues.bedCount, 10),
         bathCount: parseInt(formValues.bathCount, 10),
         squareFootage: parseInt(formValues.squareFootage, 10),
@@ -82,7 +82,7 @@ export const UpdateListingDialog = ({
         <DialogContentText>
           Update the details for the listing. Make sure all fields are filled correctly.
         </DialogContentText>
-        <form onSubmit={handleSubmit}>
+        <form id="update-listing-form" onSubmit={handleSubmit}>
           <TextField
             margin="dense"
             label="Street Number"
@@ -177,14 +177,14 @@ export const UpdateListingDialog = ({
             variant="standard"
             required
           />
+          <DialogActions>
+            <Button onClick={handleClose}>Cancel</Button>
+            <Button type="submit" form="update-listing-form">
+              Update
+            </Button>
+          </DialogActions>
         </form>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={handleClose}>Cancel</Button>
-        <Button type="submit" form="update-listing-form">
-          Update
-        </Button>
-      </DialogActions>
     </Dialog>
   );
 };
